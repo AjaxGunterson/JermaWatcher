@@ -76,5 +76,5 @@ for i, result in enumerate(channelResults):
 
 if len(channelResults) != 0:
   vidIndex = random.randint(0, len(videoList) - 1)
-  webbrowser.open(videoURL + (str)(videoList[vidIndex].videoID[0]), new=0, autoraise=True)
+  webbrowser.open(videoURL + (str)(videoList[vidIndex].videoID[0] + "&t=0"), new=0, autoraise=True)
   os.system(shutdownCommand + (str)(videoList[vidIndex].videoLength))
