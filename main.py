@@ -37,7 +37,7 @@ elif platform == "win32":
     shutdownCommand = "shutdown /s /t "
     
 for result, i in enumerate(channelResults):
-   videoList.append(youtubeVideo(result, shutdownTime))
+   videoList.append(youtubeVideo(result, str(shutdownTime)))
 
 if len(channelResults) != 0:
   vidIndex = random.randint(0, len(videoList) - 1)
