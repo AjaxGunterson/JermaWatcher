@@ -4,6 +4,8 @@ from sys import platform
 import re
 import webbrowser
 import random
+from datetime import datetime
+import time
 
 class youtubeVideo:
     def __init__(self, videoID, videoLength):
@@ -11,6 +13,31 @@ class youtubeVideo:
       self.videoLength = videoLength
     def __str__(self):
        return f"{self.videoID}({self.videoLength})"
+    
+def remove_non_time(inputList):
+   filteredList = []
+   for i, input in enumerate(inputList):
+      if ":" in input:
+         filteredList.append(input)
+   return filteredList
+
+#Removes every other time because there was 2 of each :(
+def remove_duplicates(inputList):
+   filteredList = []
+   for i, input in enumerate(inputList):
+      if (i % 2) == 0:
+         filteredList.append(input)
+   return filteredList
+
+def time_to_sec(times):
+    convertedList = []
+    for t in times:
+        try:
+            newTime = datetime.strptime(t, '%H:%M:%S')
+        except ValueError:
+            newTime = datetime.strptime(t, '%M:%S')
+        convertedList.append((newTime.hour * 60) + newTime.minute + 1)
+    return convertedList
 
 baseChannelURL = "https://www.youtube.com/@{REPLACE_CHANNEL}/videos"
 videoURL = "https://www.youtube.com/watch?v="
@@ -24,7 +51,10 @@ channelResponse = requests.get(channelURL)
 
 
 channelResults = re.findall(r'url\"\:\"\/watch\?v\=(.*?(?=\"))', channelResponse.text)
-
+channelTimes = re.findall(r'ds\"\}\},\"simpleText\":\"(.*?(?=\"))', channelResponse.text) #simpleText\":\"(.*?(?=\"))
+channelTimes = remove_non_time(channelTimes)
+channelTimes = remove_duplicates(channelTimes)
+channelTimes = time_to_sec(channelTimes)
 
 videoList = []
 
@@ -36,10 +66,10 @@ elif platform == "win32":
     shutdownTime *= 60
     shutdownCommand = "shutdown /s /t "
     
-for result, i in enumerate(channelResults):
-   videoList.append(youtubeVideo(result, str(shutdownTime)))
+for i, result in enumerate(channelResults):
+   videoList.append(youtubeVideo(result, str(channelTimes[i].videoLength)))
 
 if len(channelResults) != 0:
   vidIndex = random.randint(0, len(videoList) - 1)
-  webbrowser.open(videoURL + videoList[vidIndex].videoID[0], new=0, autoraise=True)
-  #os.system(shutdownCommand + str(videoList[vidIndex].videoLength))
+  webbrowser.open(videoURL + (str)(videoList[vidIndex].videoID[0]), new=0, autoraise=True)
+  os.system(shutdownCommand + str(videoList[vidIndex].videoLength))
